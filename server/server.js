@@ -31,27 +31,40 @@ app.use(cookieParser());
 //--------------------------Models--------------------------
 const { User } = require('./models/user');
 
+//--------------------------Middlewares--------------------------
+
+const auth= require('./middleware/auth');
+
 //---------------------------Users---------------------------
 //It creates a new user schema, wrap the data for the json and store it
 
 //Auth route
-
-app.get('/api/users/auth', (req, res) => {
-
+app.get('/api/users/auth', auth, (req, res) => {
+    res.status(200).json({
+        isAdmin: req.user.role === 0 ? false : true,
+        isAuth: true,
+        email: req.user.email,
+        name: req.user.name,
+        lastname:req.user.lastname,
+        role: req.user.role,
+        cart: req.user.cart,
+        history: req.user.history
+    })
 })
 
 
+//Register
 app.post('/api/users/register', (req, res)=>{
     const user = new User(req.body);
     user.save((err,doc)=>{
         if(err) return res.json({success: false, err})
         res.status(200).json({
-            success: true,
-            userdata: doc
+            success: true
         });
     });
 });
 
+//Login
 app.post('/api/users/login', (req, res) => {
     //find the email
     User.findOne({'email':req.body.email}, (err, user)=>{
@@ -70,8 +83,24 @@ app.post('/api/users/login', (req, res) => {
                 })
             })
         }) 
-    });
+    })
+});
+
+//Logout
+app.get('/api/users/logout', auth, (req, res)=>{
+    mongoose.set('useFindAndModify', false);
+    User.findOneAndUpdate(
+        {_id: req.user._id},
+        {token: ''},
+        (err, doc)=>{
+            if(err) return res.json({success: false, err});
+            return res.status(200).send({
+                success: true
+            })
+        }
+    )
 })
+
 
 //The server needs a port, if we don't have it, We're going to run it on the port 3002
 const port = process.env.PORT || 3002;
