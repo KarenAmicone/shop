@@ -4,7 +4,7 @@
   "description": "Fullstack e-commerce from \"React practice course, learn by building projects\" by Coding Revolution on Udemy",
   "main": "index.js",
   "dependencies": {
-    "bcrypt": "^2.0.1",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "cloudinary": "^1.14.0",
     "concurrently": "^3.6.1",
